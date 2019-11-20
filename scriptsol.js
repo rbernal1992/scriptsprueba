@@ -1,5 +1,6 @@
 //ejemplo de formato de imagen data = [0,255,8,30,....muchos numeros más]
 var contador = 0;
+var bufferurl = [];
 File.prototype.convertToBase64 = function(callback){
                 var reader = new FileReader();
                 reader.onloadend = function (e) {
@@ -8,6 +9,17 @@ File.prototype.convertToBase64 = function(callback){
                 reader.readAsDataURL(this);
         };
 
+function loadSprite(src, ctx ,callback){
+	//var Sprite = new Image();
+	console.log(ctx);
+	var img = new Image();
+	img.src = src;
+	img.onload = function() {
+    ctx.drawImage(img, 33, 71, 500, 300);
+	};
+	
+}	
+		
 function init(){
 	//Esto necesitas para desplegar la imagen obtenida desde el elemento image.data de la colección soluciones
 /*"use strict";
@@ -30,6 +42,101 @@ img.onload = function(){
 	
 }*/
 //esto no
+var check;
+        $.ajax({
+            url: "/api/solutionslist",
+            method: "GET",
+            dataType: "json",
+            xhrFields: {
+                withCredentials: true
+            },
+            contentType: "application/json",
+            success: function (responseJson) {
+				var Iditem;
+				var ItemPrev;
+				var ctx = [];
+				
+				
+				for (check in responseJson){
+                $('#listasoluciones').append(`<li><div> title: ` + responseJson[check].title + `</div>
+												   <div> author:` + responseJson[check].author + `</div>
+													<div> description:` + responseJson[check].description + `</div>
+													<div> review:` + responseJson[check].grade + `</div>
+													<div> grade:` + responseJson[check].gradenum + `</div>
+													<div> last user who accessed:` + responseJson.lastuseraccess + `</div>
+													<canvas id="ItemPrev`+contador+`"> </canvas>
+													
+				</li>`);
+				
+				var img = new Image();
+				bufferurl[contador] = responseJson[check].imageOne;	
+				Iditem = "ItemPrev" + contador;
+					ItemPrev = document.getElementById(Iditem);
+					//console.log(ItemPrev);
+					img.src = bufferurl[contador];
+					ctx[contador] = ItemPrev.getContext("2d");
+					//console.log("After context");
+					loadSprite(bufferurl[contador],ctx[contador],function(){
+						
+					});
+					//img.src = responseJson[check].imageOne;
+					//console.log(img.src);
+				
+					/*img.onload = function(){
+						console.log("Image Onload");
+						ctx.drawImage(img, 33, 71, 500,300);
+					
+					}*/
+				//console.log(bufferurl[contador]);
+				contador++;
+				};
+			
+				
+				
+				
+			
+            },
+
+            error: function (err) {
+                $('#status').append(`Something went wrong, try again later`);
+
+
+            },
+				async: false
+
+
+
+        });
+			
+			
+			/*var cd = 0;
+			
+				for(cd = 0; cd < contador; cd++){
+					
+					var img = new Image();
+					img.src = bufferurl[cd];
+					getWdrp(img);
+					console.log(img.src,cd);
+					
+						function getWdrp(img, cc){
+							img.onload = function(ctx){
+									var Iditem = "ItemPrev"+cc;
+									console.log(Iditem);
+									var ItemPrev = document.getElementById(Iditem);
+									console.log(ItemPrev);
+									var ctx = ItemPrev.getContext("2d");
+									console.log("Image Onload");
+									ctx.drawImage(img, 33, 71, 500,300);
+							}
+
+						}
+					
+					
+							
+				}*/
+				
+	
+
     $('#submt').on("click", function (event) {
         event.preventDefault();
         $.ajax({
@@ -121,6 +228,7 @@ img.onload = function(){
 	
 	    $('#but_upload').on("click", function (event) {
 			event.preventDefault();
+			contador++;
 			let d = Date();
 			let dnow = d.toString();
 			var nbase64;
